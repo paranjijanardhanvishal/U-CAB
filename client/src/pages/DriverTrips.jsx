@@ -64,15 +64,22 @@ const DriverTrips = () => {
             You haven't completed any trips yet.
           </div>
         ) : (
-          <Table 
-            columns={['Date & Time', 'Locations', 'Status', 'Earnings']}
-            data={trips.map(t => [
-              <div key={t._id + 'date'}><div className="fw-medium">{formatDate(t.createdAt)}</div><small className="text-muted">{formatTime(t.createdAt)}</small></div>,
-              <div key={t._id + 'loc'}><div className="text-dark small"><strong className="text-primary">•</strong> {t.pickupLocation?.address}</div><div className="text-dark small mt-1"><strong className="text-danger">•</strong> {t.dropoffLocation?.address}</div></div>,
-              <span key={t._id + 'status'}>{renderStatus(t.status)}</span>,
-              <span key={t._id + 'fare'} className="fw-bold text-success">₹{t.fare}</span>
-            ])}
-          />
+          <Table headers={['Date & Time', 'Locations', 'Status', 'Earnings']}>
+            {trips.map(t => (
+              <tr key={t._id}>
+                <td>
+                  <div className="fw-medium">{formatDate(t.createdAt)}</div>
+                  <small className="text-muted">{formatTime(t.createdAt)}</small>
+                </td>
+                <td>
+                  <div className="text-dark small"><strong className="text-primary">•</strong> {t.pickupLocation?.address}</div>
+                  <div className="text-dark small mt-1"><strong className="text-danger">•</strong> {t.dropoffLocation?.address}</div>
+                </td>
+                <td>{renderStatus(t.status)}</td>
+                <td className="fw-bold text-success">₹{t.fare}</td>
+              </tr>
+            ))}
+          </Table>
         )}
       </Card>
     </div>

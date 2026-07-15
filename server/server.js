@@ -10,6 +10,9 @@ import driverRoutes from './routes/driverRoutes.js';
 import rideRoutes from './routes/rideRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import walletRoutes from './routes/walletRoutes.js';
+import couponRoutes from './routes/couponRoutes.js';
+import notificationRoutes from './routes/notificationRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -45,6 +48,9 @@ app.use('/api/drivers', driverRoutes);
 app.use('/api/rides', rideRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/wallet', walletRoutes);
+app.use('/api/coupons', couponRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Error Handling Middleware
 app.use(notFound);

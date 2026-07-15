@@ -8,7 +8,8 @@ import {
   updateRideStatus,
   getDriverRides,
   getCurrentRide,
-  cancelRide
+  cancelRide,
+  getAvailableCabsUser
 } from '../controllers/rideController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
@@ -21,6 +22,7 @@ router.get('/myrides', protect, getMyRides);
 router.get('/driver', protect, getDriverRides);
 router.get('/available', protect, getAvailableRides);
 router.get('/current', protect, getCurrentRide);
+router.get('/cabs', protect, getAvailableCabsUser);
 
 router.route('/:id')
   .get(protect, getRideById);

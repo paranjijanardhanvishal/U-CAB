@@ -5,12 +5,15 @@ import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
 import SectionHeader from '../components/ui/SectionHeader';
 import { FaCreditCard, FaLock, FaCheckCircle, FaCar, FaDownload } from 'react-icons/fa';
+import { SocketContext } from '../context/SocketContext';
+import { useContext } from 'react';
 
 const Payment = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const socket = useContext(SocketContext);
   
   // Fallback mock data
   const rideData = location.state || {
@@ -28,6 +31,9 @@ const Payment = () => {
     setTimeout(() => {
       setLoading(false);
       setSuccess(true);
+      if (socket && rideData.driverId) {
+        socket.emit('paymentProcessed', { driverId: rideData.driverId, amount: rideData.price });
+      }
     }, 1500);
   };
 

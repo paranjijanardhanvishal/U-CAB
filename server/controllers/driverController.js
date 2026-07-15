@@ -1,4 +1,6 @@
 import * as driverService from '../services/driverService.js';
+import Vehicle from '../models/Vehicle.js';
+import Ride from '../models/Ride.js';
 import { sendResponse } from '../utils/response.js';
 
 // @desc    Get driver profile
@@ -52,6 +54,61 @@ const updateLocation = async (req, res, next) => {
     if (error.message === 'Driver profile not found') {
       res.status(404);
     }
+    next(error);
+  }
+};
+
+export const getVehicle = async (req, res, next) => {
+  try {
+    const vehicle = await Vehicle.findOne({ driverId: req.user._id });
+    return sendResponse(res, 200, true, 'Vehicle fetched', vehicle);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const addVehicle = async (req, res, next) => {
+  try {
+    const { carName, carType, pricePerKm, carNo } = req.body;
+    let vehicle = await Vehicle.findOne({ driverId: req.user._id });
+    
+    if (vehicle) {
+      vehicle.carName = carName || vehicle.carName;
+      vehicle.carType = carType || vehicle.carType;
+      vehicle.pricePerKm = pricePerKm || vehicle.pricePerKm;
+      vehicle.carNo = carNo || vehicle.carNo;
+      await vehicle.save();
+    } else {
+      vehicle = await Vehicle.create({
+        driverId: req.user._id,
+        carName, carType, pricePerKm, carNo
+      });
+    }
+    return sendResponse(res, 200, true, 'Vehicle saved', vehicle);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getTrips = async (req, res, next) => {
+  try {
+    const rides = await Ride.find({ driver: req.user._id }).sort({ createdAt: -1 });
+    return sendResponse(res, 200, true, 'Trips fetched', rides);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getEarnings = async (req, res, next) => {
+  try {
+    const rides = await Ride.find({ driver: req.user._id, status: 'completed' });
+    const totalEarnings = rides.reduce((sum, ride) => sum + (ride.fare || 0), 0);
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const todayEarnings = rides.filter(r => new Date(r.createdAt) >= today).reduce((sum, r) => sum + (r.fare || 0), 0);
+    
+    return sendResponse(res, 200, true, 'Earnings fetched', { totalEarnings, todayEarnings, ridesCount: rides.length });
+  } catch (error) {
     next(error);
   }
 };

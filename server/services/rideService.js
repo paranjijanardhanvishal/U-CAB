@@ -3,12 +3,16 @@ import Driver from '../models/Driver.js';
 import { RIDE_STATUS } from '../utils/constants.js';
 
 export const requestRide = async (userId, rideData) => {
-  const { pickupLocation, dropoffLocation, fare, rideType } = rideData;
+  const { pickupLocation, dropoffLocation, fare, rideType, pickupDate, pickupTime, dropDate, dropTime } = rideData;
 
   const ride = await Ride.create({
     user: userId,
     pickupLocation,
     dropoffLocation,
+    pickupDate,
+    pickupTime,
+    dropDate,
+    dropTime,
     fare,
     status: RIDE_STATUS.REQUESTED,
   });

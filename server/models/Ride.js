@@ -14,14 +14,22 @@ const rideSchema = new mongoose.Schema(
     },
     pickupLocation: {
       address: { type: String, required: true },
+      state: { type: String },
+      city: { type: String },
       latitude: { type: Number },
       longitude: { type: Number },
     },
     dropoffLocation: {
       address: { type: String, required: true },
+      state: { type: String },
+      city: { type: String },
       latitude: { type: Number },
       longitude: { type: Number },
     },
+    pickupDate: { type: String },
+    pickupTime: { type: String },
+    dropDate: { type: String },
+    dropTime: { type: String },
     fare: {
       type: Number,
       required: true,

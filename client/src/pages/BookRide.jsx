@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import api from '../services/api';
 import Card from '../components/ui/Card';
@@ -23,6 +23,7 @@ const PRICING = {
 
 const BookRide = () => {
   const navigate = useNavigate();
+  const locationState = useLocation().state;
   const { currentRide, setCurrentRide } = useContext(RideContext);
 
   // If there's an active ride, redirect to ride details
@@ -38,6 +39,17 @@ const BookRide = () => {
   const [pickupCoords, setPickupCoords] = useState(null);
   const [dropoffCoords, setDropoffCoords] = useState(null);
   
+  // Advanced Booking State
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [pickupDate, setPickupDate] = useState('');
+  const [pickupTime, setPickupTime] = useState('');
+  const [dropDate, setDropDate] = useState('');
+  const [dropTime, setDropTime] = useState('');
+  const [pickupState, setPickupState] = useState('');
+  const [pickupCity, setPickupCity] = useState('');
+  const [dropState, setDropState] = useState('');
+  const [dropCity, setDropCity] = useState('');
+  
   // Map/Route state
   const [route, setRoute] = useState(null); // { polyline, distance, duration }
   const [mapCenter, setMapCenter] = useState([51.505, -0.09]);
@@ -48,6 +60,12 @@ const BookRide = () => {
   const [booking, setBooking] = useState(false);
   const [selectedRide, setSelectedRide] = useState('mini');
   const [nearbyDrivers, setNearbyDrivers] = useState([]);
+
+  useEffect(() => {
+    if (locationState?.selectedCab) {
+      setSelectedRide(locationState.selectedCab.carType.toLowerCase());
+    }
+  }, [locationState]);
 
   // Generate some fake nearby drivers when pickup is set
   useEffect(() => {
@@ -108,14 +126,22 @@ const BookRide = () => {
       const payload = {
         pickupLocation: {
           address: pickupText,
+          state: pickupState,
+          city: pickupCity,
           latitude: pickupCoords[0],
           longitude: pickupCoords[1]
         },
         dropoffLocation: {
           address: dropoffText,
+          state: dropState,
+          city: dropCity,
           latitude: dropoffCoords[0],
           longitude: dropoffCoords[1]
         },
+        pickupDate,
+        pickupTime,
+        dropDate,
+        dropTime,
         fare: parseFloat(price),
         rideType: selectedRide
       };
@@ -204,6 +230,35 @@ const BookRide = () => {
                     onSelect={(item) => setDropoffCoords([item.lat, item.lon])}
                   />
                 </div>
+              </div>
+
+              <div className="mb-4">
+                <Button 
+                  variant="link" 
+                  className="p-0 text-decoration-none fw-bold"
+                  onClick={() => setShowAdvanced(!showAdvanced)}
+                >
+                  {showAdvanced ? '- Hide' : '+ Show'} Advanced Booking Options
+                </Button>
+                
+                {showAdvanced && (
+                  <div className="mt-3 p-3 bg-light rounded-3 border">
+                    <h6 className="fw-bold mb-2 small text-muted">Scheduling</h6>
+                    <div className="row g-2 mb-3">
+                      <div className="col-6"><input type="date" className="form-control form-control-sm" value={pickupDate} onChange={e=>setPickupDate(e.target.value)} placeholder="Pickup Date"/></div>
+                      <div className="col-6"><input type="time" className="form-control form-control-sm" value={pickupTime} onChange={e=>setPickupTime(e.target.value)} placeholder="Pickup Time"/></div>
+                      <div className="col-6"><input type="date" className="form-control form-control-sm" value={dropDate} onChange={e=>setDropDate(e.target.value)} placeholder="Drop Date"/></div>
+                      <div className="col-6"><input type="time" className="form-control form-control-sm" value={dropTime} onChange={e=>setDropTime(e.target.value)} placeholder="Drop Time"/></div>
+                    </div>
+                    <h6 className="fw-bold mb-2 small text-muted">Location Details</h6>
+                    <div className="row g-2">
+                      <div className="col-6"><input type="text" className="form-control form-control-sm" value={pickupState} onChange={e=>setPickupState(e.target.value)} placeholder="Pickup State"/></div>
+                      <div className="col-6"><input type="text" className="form-control form-control-sm" value={pickupCity} onChange={e=>setPickupCity(e.target.value)} placeholder="Pickup City"/></div>
+                      <div className="col-6"><input type="text" className="form-control form-control-sm" value={dropState} onChange={e=>setDropState(e.target.value)} placeholder="Drop State"/></div>
+                      <div className="col-6"><input type="text" className="form-control form-control-sm" value={dropCity} onChange={e=>setDropCity(e.target.value)} placeholder="Drop City"/></div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {loadingRoute && (

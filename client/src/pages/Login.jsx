@@ -88,7 +88,7 @@ const Login = () => {
                   className={`form-control form-control-lg ${validationError && !email ? 'is-invalid' : ''}`}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
+                  placeholder={role === 'admin' ? 'admin@admin.com' : 'Enter your email'}
                   autoComplete="off"
                 />
               </div>
@@ -101,7 +101,7 @@ const Login = () => {
                     className={`form-control ${validationError && !password ? 'is-invalid' : ''}`}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
+                    placeholder={role === 'admin' ? 'admin123' : 'Enter your password'}
                     autoComplete="new-password"
                   />
                   <button

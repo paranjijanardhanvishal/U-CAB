@@ -185,38 +185,37 @@ const AdminRides = () => {
           </div>
         ) : (
           <div className="table-responsive">
-            <Table headers={['Ride ID & Timing', 'Route', 'Passenger & Driver', 'Type & Fare', 'Status', 'Actions']}>
+            <Table headers={['Date', 'Trip', 'Pickup', 'Drop', 'Driver', 'Car Details', 'Amount', 'Status', 'Actions']}>
               {paginatedRides.map((r, index) => (
                 <tr key={r._id} ref={index === paginatedRides.length - 1 ? lastElementRef : null}>
                   <td>
-                    <div className="fw-bold text-dark font-monospace">{r._id.substring(r._id.length - 8)}</div>
-                    <div className="small text-muted mt-1">Start: {new Date(r.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
-                    <div className="small text-muted">Upd: {new Date(r.updatedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                    <div className="fw-medium text-dark">{new Date(r.createdAt).toLocaleDateString()}</div>
                   </td>
-                  
-                  <td style={{ minWidth: '180px' }}>
-                    <div className="text-dark small text-truncate" style={{maxWidth: '220px'}}><strong className="text-primary">•</strong> {r.pickupLocation?.address}</div>
-                    <div className="text-dark small mt-1 text-truncate" style={{maxWidth: '220px'}}><strong className="text-danger">•</strong> {r.dropoffLocation?.address}</div>
-                    <div className="badge bg-light text-dark mt-2 border">{r.distance || 'N/A'} km</div>
-                  </td>
-                  
                   <td style={{ minWidth: '150px' }}>
-                    <div className="fw-medium text-dark"><span className="text-muted small">P:</span> {r.user?.fullName || 'N/A'}</div>
-                    <div className="fw-medium text-dark mt-1"><span className="text-muted small">D:</span> {r.driver?.user?.fullName || 'Pending'}</div>
+                    <div className="text-dark small text-truncate" style={{maxWidth: '180px'}}>
+                      {r.pickupLocation?.address?.split(',')[0]} &rarr; {r.dropoffLocation?.address?.split(',')[0]}
+                    </div>
                   </td>
-                  
                   <td>
-                    <div className="fw-bold text-success fs-6">₹{r.fare}</div>
-                    <Badge variant="secondary" className="mt-1">{r.rideType || 'Standard'}</Badge>
+                    <div className="small text-muted">{r.pickupTime ? `${r.pickupTime}, ${r.pickupDate || ''}` : new Date(r.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
                   </td>
-                  
+                  <td>
+                    <div className="small text-muted">{r.dropTime ? `${r.dropTime}, ${r.dropDate || ''}` : r.endTime ? new Date(r.endTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '-'}</div>
+                  </td>
+                  <td>
+                    <div className="fw-medium text-dark small">{r.driver?.user?.fullName || 'Pending'}</div>
+                  </td>
+                  <td>
+                    <div className="small text-muted">{r.rideType || 'Standard'}</div>
+                  </td>
+                  <td>
+                    <div className="fw-bold text-dark">₹{r.fare}</div>
+                  </td>
                   <td>
                     {getStatusBadge(r.status)}
                   </td>
-                  
                   <td>
                     <div className="d-flex gap-2">
-                      <Button variant="light" size="sm" className="text-primary p-2"><FaEye /></Button>
                       <Button variant="light" size="sm" className="text-danger p-2"><FaTrash /></Button>
                     </div>
                   </td>

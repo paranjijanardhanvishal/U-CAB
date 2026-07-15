@@ -174,4 +174,17 @@ const cancelRide = async (req, res, next) => {
   }
 };
 
-export { requestRide, getRideById, getMyRides, getAvailableRides, acceptRide, updateRideStatus, getDriverRides, getCurrentRide, cancelRide };
+// @desc    Get all available cabs for users to view
+// @route   GET /api/rides/cabs
+// @access  Private/User
+const getAvailableCabsUser = async (req, res, next) => {
+  try {
+    const Vehicle = (await import('../models/Vehicle.js')).default;
+    const cabs = await Vehicle.find({ status: 'Active' }).sort({ createdAt: -1 });
+    return sendResponse(res, 200, true, 'Available cabs fetched', cabs);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export { requestRide, getRideById, getMyRides, getAvailableRides, acceptRide, updateRideStatus, getDriverRides, getCurrentRide, cancelRide, getAvailableCabsUser };

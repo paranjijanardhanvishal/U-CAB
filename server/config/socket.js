@@ -45,6 +45,11 @@ export const initSocket = (server) => {
       io.to(`ride_${rideId}`).emit('locationUpdated', location);
     });
 
+    socket.on('paymentProcessed', (data) => {
+      const { driverId, amount } = data;
+      io.to(`user_${driverId}`).emit('paymentReceived', { amount });
+    });
+
     socket.on('disconnect', () => {
       console.log(`User disconnected: ${socket.user.id}`);
     });

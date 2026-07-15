@@ -25,6 +25,7 @@ import Wallet from './pages/Wallet';
 import Coupons from './pages/Coupons';
 import Favorites from './pages/Favorites';
 import Notifications from './pages/Notifications';
+import AvailableCabs from './pages/AvailableCabs';
 
 // Driver Pages
 import DriverTrips from './pages/DriverTrips';
@@ -35,6 +36,7 @@ import DriverVehicle from './pages/DriverVehicle';
 import AdminUsers from './pages/AdminUsers';
 import AdminDrivers from './pages/AdminDrivers';
 import AdminRides from './pages/AdminRides';
+import AdminCabs from './pages/AdminCabs';
 
 import ChooseRole from './pages/ChooseRole';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -80,6 +82,7 @@ function App() {
       {/* Since we want these to show in the DashboardLayout, let's remap them properly */}
       <Route element={<DashboardLayout />}>
         <Route path="/ride-history" element={<ProtectedRoute allowedRoles={['user']}><RideHistory /></ProtectedRoute>} />
+        <Route path="/available-cabs" element={<ProtectedRoute allowedRoles={['user']}><AvailableCabs /></ProtectedRoute>} />
         <Route path="/wallet" element={<ProtectedRoute allowedRoles={['user']}><Wallet /></ProtectedRoute>} />
         <Route path="/coupons" element={<ProtectedRoute allowedRoles={['user']}><Coupons /></ProtectedRoute>} />
         <Route path="/favorites" element={<ProtectedRoute allowedRoles={['user']}><Favorites /></ProtectedRoute>} />
@@ -95,6 +98,7 @@ function App() {
         <Route path="/admin/users" element={<ProtectedRoute allowedRoles={['admin']}><AdminUsers /></ProtectedRoute>} />
         <Route path="/admin/drivers" element={<ProtectedRoute allowedRoles={['admin']}><AdminDrivers /></ProtectedRoute>} />
         <Route path="/admin/rides" element={<ProtectedRoute allowedRoles={['admin']}><AdminRides /></ProtectedRoute>} />
+        <Route path="/admin/cabs" element={<ProtectedRoute allowedRoles={['admin']}><AdminCabs /></ProtectedRoute>} />
       </Route>
 
     </Routes>

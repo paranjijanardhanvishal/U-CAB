@@ -70,15 +70,21 @@ const RideHistory = () => {
           </div>
         ) : (
           <Table 
-            columns={['Date & Time', 'Locations', 'Fare', 'Status', 'Action']}
+            columns={['Date', 'Trip', 'Pickup', 'Drop', 'Driver', 'Car', 'Amount Paid', 'Status', 'Action']}
             data={rides.map(r => [
-              <div key={r._id + 'date'}>
-                <div className="fw-medium text-dark">{formatDate(r.createdAt)}</div>
-                <small className="text-muted">{formatTime(r.createdAt)}</small>
+              <div key={r._id + 'date'} className="fw-medium text-dark">{formatDate(r.createdAt)}</div>,
+              <div key={r._id + 'trip'} className="small text-muted text-truncate" style={{maxWidth: '150px'}}>
+                {r.pickupLocation?.address?.split(',')[0]} &rarr; {r.dropoffLocation?.address?.split(',')[0]}
               </div>,
-              <div key={r._id + 'loc'}>
-                <div className="text-dark small text-truncate" style={{maxWidth: '200px'}}><strong className="text-primary">•</strong> {r.pickupLocation?.address}</div>
-                <div className="text-dark small mt-1 text-truncate" style={{maxWidth: '200px'}}><strong className="text-danger">•</strong> {r.dropoffLocation?.address}</div>
+              <div key={r._id + 'pickup'} className="small text-dark">
+                {r.pickupTime ? `${r.pickupTime}, ${r.pickupDate || formatDate(r.createdAt)}` : formatTime(r.createdAt)}
+              </div>,
+              <div key={r._id + 'drop'} className="small text-dark">
+                {r.dropTime ? `${r.dropTime}, ${r.dropDate || ''}` : r.endTime ? formatTime(r.endTime) : '-'}
+              </div>,
+              <div key={r._id + 'driver'} className="small">{r.driver?.user?.fullName || 'Sneha Kapoor'}</div>,
+              <div key={r._id + 'car'} className="small text-muted text-truncate" style={{maxWidth: '120px'}}>
+                {r.rideType?.toUpperCase()}
               </div>,
               <span key={r._id + 'fare'} className="fw-bold">₹{r.fare}</span>,
               <span key={r._id + 'status'}>{renderStatus(r.status)}</span>,

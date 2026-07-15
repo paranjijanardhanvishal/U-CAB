@@ -45,6 +45,8 @@ const AdminUsers = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [displayedCount, setDisplayedCount] = useState(15);
   const observer = useRef();
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   // Use mock data if real users <= 1 (meaning only admin exists)
   const [mockUsers] = useState(generateMockUsers());
@@ -169,7 +171,7 @@ const AdminUsers = () => {
                   </td>
                   <td>
                     <div className="d-flex gap-2">
-                      <Button variant="light" size="sm" className="text-primary p-2"><FaEye /></Button>
+                      <Button variant="light" size="sm" className="text-primary p-2" onClick={() => { setSelectedUser(u); setShowModal(true); }}><FaEye /></Button>
                       <Button variant="light" size="sm" className="text-success p-2"><FaEdit /></Button>
                       <Button variant="light" size="sm" className="text-danger p-2"><FaTrash /></Button>
                     </div>
@@ -186,6 +188,39 @@ const AdminUsers = () => {
           </div>
         )}
       </Card>
+
+      {/* User Info Modal */}
+      {showModal && selectedUser && (
+        <>
+          <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} onClick={() => setShowModal(false)}>
+            <div className="modal-dialog modal-dialog-centered" onClick={e => e.stopPropagation()}>
+              <div className="modal-content border-0 shadow-lg rounded-4">
+                <div className="modal-header border-bottom-0 pb-0">
+                  <h5 className="modal-title fw-bold">User Information</h5>
+                  <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
+                </div>
+                <div className="modal-body text-center pt-4">
+                  <div className="bg-light rounded-circle d-flex align-items-center justify-content-center text-primary fw-bold mx-auto mb-3" style={{width: '80px', height: '80px', fontSize: '30px'}}>
+                    {selectedUser.fullName?.charAt(0).toUpperCase()}
+                  </div>
+                  <h4 className="fw-bold mb-1">{selectedUser.fullName}</h4>
+                  <div className="mb-3">{getRoleBadge(selectedUser.role)} {getStatusBadge(selectedUser.status)}</div>
+                  
+                  <div className="bg-light rounded-4 p-3 text-start mb-3 border">
+                    <div className="mb-2"><small className="text-muted d-block fw-bold">Email Address</small>{selectedUser.email || 'N/A'}</div>
+                    <div className="mb-2"><small className="text-muted d-block fw-bold">Phone Number</small>{selectedUser.phone || 'N/A'}</div>
+                    <div className="mb-2"><small className="text-muted d-block fw-bold">User ID</small><span className="font-monospace text-secondary">{selectedUser._id}</span></div>
+                    <div><small className="text-muted d-block fw-bold">Registration Date</small>{new Date(selectedUser.createdAt).toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+                  </div>
+                </div>
+                <div className="modal-footer border-top-0 pt-0 justify-content-center">
+                  <Button variant="outline-secondary" onClick={() => setShowModal(false)}>Close</Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

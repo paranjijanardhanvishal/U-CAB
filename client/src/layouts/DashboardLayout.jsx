@@ -11,6 +11,7 @@ const getLinksForRole = (pathname) => {
       { path: '/dashboard/admin', label: 'Dashboard', icon: FaTachometerAlt, exact: true },
       { path: '/admin/users', label: 'Users', icon: FaUser },
       { path: '/admin/rides', label: 'Rides', icon: FaCar },
+      { path: '/admin/cabs', label: 'Cabs', icon: FaCar },
     ];
   }
   // Driver links
@@ -27,6 +28,7 @@ const getLinksForRole = (pathname) => {
   return [
     { path: '/dashboard/user', label: 'Dashboard', icon: FaTachometerAlt, exact: true },
     { path: '/book-ride', label: 'Book a Ride', icon: FaCar },
+    { path: '/available-cabs', label: 'Available Cabs', icon: FaCar },
     { path: '/ride-history', label: 'Ride History', icon: FaHistory },
     { path: '/wallet', label: 'Wallet', icon: FaWallet },
     { path: '/coupons', label: 'Coupons', icon: FaTag },

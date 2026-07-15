@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import SectionHeader from '../components/ui/SectionHeader';
 import Card from '../components/ui/Card';
 import StatCard from '../components/ui/StatCard';
 import { FaMoneyBillWave, FaChartLine, FaChartBar } from 'react-icons/fa';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import api from '../services/api';
 
 const data = [
   { name: 'Mon', earnings: 45 },
@@ -16,19 +17,42 @@ const data = [
 ];
 
 const DriverEarnings = () => {
+  const [earningsData, setEarningsData] = useState({ totalEarnings: 0, todayEarnings: 0, ridesCount: 0 });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchEarnings = async () => {
+      try {
+        const res = await api.get('/drivers/earnings');
+        if (res.data.data) {
+          setEarningsData(res.data.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch earnings', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEarnings();
+  }, []);
+
+  if (loading) {
+    return <div className="text-center py-5"><div className="spinner-border text-primary"></div></div>;
+  }
+
   return (
     <div>
       <SectionHeader title="Earnings" description="Track your daily and weekly earnings." />
       
       <div className="row g-4 mb-5">
         <div className="col-md-4">
-          <StatCard title="Today's Earnings" value="₹1,250.50" icon={FaMoneyBillWave} color="success" />
+          <StatCard title="Today's Earnings" value={`₹${earningsData.todayEarnings.toFixed(2)}`} icon={FaMoneyBillWave} color="success" />
         </div>
         <div className="col-md-4">
-          <StatCard title="This Week" value="₹8,400.00" icon={FaChartLine} color="primary" />
+          <StatCard title="Total Earnings" value={`₹${earningsData.totalEarnings.toFixed(2)}`} icon={FaChartLine} color="primary" />
         </div>
         <div className="col-md-4">
-          <StatCard title="Total Trips" value="42" icon={FaChartBar} color="warning" />
+          <StatCard title="Total Trips" value={earningsData.ridesCount} icon={FaChartBar} color="warning" />
         </div>
       </div>
 

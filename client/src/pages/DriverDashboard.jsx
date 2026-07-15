@@ -16,6 +16,27 @@ const DriverDashboard = () => {
   const [rideRequests, setRideRequests] = useState([]);
   const [loading, setLoading] = useState(false);
   const [driverProfile, setDriverProfile] = useState(null);
+  
+  const [animatedEarnings, setAnimatedEarnings] = useState(1250.50);
+  const [displayEarnings, setDisplayEarnings] = useState(1250.50);
+  const [floatingAmount, setFloatingAmount] = useState(null);
+
+  useEffect(() => {
+    if (displayEarnings !== animatedEarnings) {
+      const step = (animatedEarnings - displayEarnings) / 20;
+      let current = displayEarnings;
+      const interval = setInterval(() => {
+        current += step;
+        if ((step > 0 && current >= animatedEarnings) || (step < 0 && current <= animatedEarnings)) {
+          setDisplayEarnings(animatedEarnings);
+          clearInterval(interval);
+        } else {
+          setDisplayEarnings(current);
+        }
+      }, 50);
+      return () => clearInterval(interval);
+    }
+  }, [animatedEarnings, displayEarnings]);
   const socket = useContext(SocketContext);
   const { currentRide, setCurrentRide } = useContext(RideContext);
   const navigate = useNavigate();
@@ -55,8 +76,18 @@ const DriverDashboard = () => {
         setRideRequests(prev => [ride, ...prev]);
       });
 
+      socket.on('paymentReceived', (data) => {
+        const amount = parseFloat(data.amount);
+        setFloatingAmount(amount);
+        setTimeout(() => {
+          setFloatingAmount(null);
+          setAnimatedEarnings(prev => prev + amount);
+        }, 1200);
+      });
+
       return () => {
         socket.off('newRideRequest');
+        socket.off('paymentReceived');
       };
     }
   }, [socket, isOnline]);
@@ -94,6 +125,16 @@ const DriverDashboard = () => {
 
   return (
     <div>
+      <style>
+        {`
+          @keyframes floatUpAndFade {
+            0% { opacity: 0; transform: translateY(0px) translateX(0); }
+            20% { opacity: 1; transform: translateY(-10px) translateX(15px); }
+            80% { opacity: 1; transform: translateY(-20px) translateX(25px); }
+            100% { opacity: 0; transform: translateY(-30px) translateX(30px); }
+          }
+        `}
+      </style>
       <div className="d-flex justify-content-between align-items-center mb-4">
         <SectionHeader title="Driver Dashboard" description="Manage your rides and earnings." className="mb-0" />
         <Button 
@@ -106,8 +147,30 @@ const DriverDashboard = () => {
       </div>
       
       <div className="row g-4 mb-4">
-        <div className="col-md-4">
-          <StatCard title="Today's Earnings" value="₹1,250.50" icon={FaMoneyBillWave} color="success" />
+        <div className="col-md-4 position-relative">
+          <StatCard title="Today's Earnings" value={`₹${displayEarnings.toFixed(2)}`} icon={FaMoneyBillWave} color="success" />
+          
+          {floatingAmount !== null && (
+            <div className="position-absolute text-success fw-bold fs-3 z-3" style={{
+              top: '50%',
+              right: '-10px',
+              animation: 'floatUpAndFade 1.2s forwards',
+              textShadow: '0 2px 4px rgba(0,0,0,0.2)'
+            }}>
+              + ₹{floatingAmount.toFixed(2)}
+            </div>
+          )}
+          
+          {/* Debug button to easily test animation locally */}
+          <button 
+            className="btn btn-sm btn-outline-light text-muted border-0 position-absolute bottom-0 end-0 m-2 opacity-50 hover-opacity-100" 
+            onClick={() => {
+              setFloatingAmount(300);
+              setTimeout(() => { setFloatingAmount(null); setAnimatedEarnings(prev => prev + 300); }, 1200);
+            }}
+          >
+            sim
+          </button>
         </div>
         <div className="col-md-4">
           <StatCard title="Trips Completed" value="8" icon={FaRoute} color="primary" />

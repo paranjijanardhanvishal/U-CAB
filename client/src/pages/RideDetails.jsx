@@ -11,6 +11,7 @@ import { SocketContext } from '../context/SocketContext';
 import { RideContext } from '../context/RideContext';
 import { toast } from 'react-toastify';
 import { UserLocationIcon, PickupIcon, DestinationIcon, DriverCarIcon } from '../utils/MapIcons';
+import { AuthContext } from '../context/AuthContext';
 
 const RIDE_STATUSES = [
   'Searching Driver',
@@ -26,7 +27,7 @@ const STATUS_MAP = {
   'requested': 0,
   'accepted': 1,
   'arriving': 2,
-  'arrived': 3,
+  'reached': 3,
   'started': 4,
   'in_progress': 5,
   'completed': 6,
@@ -39,6 +40,7 @@ const RideDetails = () => {
   const location = useLocation();
   const socket = useContext(SocketContext);
   const { currentRide, setCurrentRide } = useContext(RideContext);
+  const { user } = useContext(AuthContext);
 
   const [rideData, setRideData] = useState(location.state?.ride || currentRide || null);
   const [statusIndex, setStatusIndex] = useState(0);
@@ -79,9 +81,35 @@ const RideDetails = () => {
       socket.on('locationUpdated', (loc) => {
         setDriverLocation(loc);
       });
+      
+      socket.on('rideAccepted', (updatedRide) => {
+        setRideData(updatedRide);
+        setStatusIndex(STATUS_MAP['accepted']);
+        toast.success('A driver has accepted your ride!');
+      });
+
+      socket.on('rideStatusUpdated', (updatedRide) => {
+        setRideData(updatedRide);
+        setStatusIndex(STATUS_MAP[updatedRide.status]);
+        
+        if (updatedRide.status === 'completed') {
+          toast.success('You have reached your destination!');
+        } else if (updatedRide.status === 'reached') {
+          toast.info('Driver has arrived at the pickup location.');
+        }
+      });
+      
+      socket.on('rideCancelled', (updatedRide) => {
+        setRideData(updatedRide);
+        setStatusIndex(-1);
+        toast.error('The ride was cancelled.');
+      });
 
       return () => {
         socket.off('locationUpdated');
+        socket.off('rideAccepted');
+        socket.off('rideStatusUpdated');
+        socket.off('rideCancelled');
       };
     }
   }, [socket, rideData]);
@@ -94,23 +122,32 @@ const RideDetails = () => {
   useEffect(() => {
     if (isDriverAssigned && location.state?.route?.polyline?.length > 0) {
       const routePath = location.state.route.polyline;
+      let newLocation = null;
       
       if (statusIndex === 1 || statusIndex === 2) {
         const pickup = routePath[0];
-        setDriverLocation([pickup[0] + 0.005, pickup[1] + 0.005]);
+        newLocation = [pickup[0] + 0.005, pickup[1] + 0.005];
       } else if (statusIndex === 3) {
-        setDriverLocation(routePath[0]);
+        newLocation = routePath[0];
       } else if (statusIndex === 4 || statusIndex === 5) {
         const midPoint = routePath[Math.floor(routePath.length / 2)];
-        setDriverLocation(midPoint);
+        newLocation = midPoint;
       } else if (isCompleted) {
-        setDriverLocation(routePath[routePath.length - 1]);
+        newLocation = routePath[routePath.length - 1];
+      }
+
+      if (newLocation) {
+        setDriverLocation(newLocation);
+        // If logged in as driver, emit the location
+        if (user?.role === 'driver' && socket) {
+          socket.emit('driverLocationUpdate', { rideId: id, location: newLocation });
+        }
       }
     }
-  }, [statusIndex, isDriverAssigned, isCompleted, location.state]);
+  }, [statusIndex, isDriverAssigned, isCompleted, location.state, user, socket, id]);
 
   const handlePayment = () => {
-    navigate(`/payment/${id}`, { state: { price: rideData.fare, route: location.state?.route } });
+    navigate(`/payment/${id}`, { state: { price: rideData.fare, route: location.state?.route, driverId: rideData.driver?._id || rideData.driver } });
   };
 
   const handleCancelRide = async () => {
@@ -123,6 +160,24 @@ const RideDetails = () => {
       setCurrentRide(null);
     } catch (error) {
       toast.error('Failed to cancel ride');
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdateStatus = async (newStatus) => {
+    try {
+      setLoading(true);
+      const res = await api.put(`/rides/${id}/status`, { status: newStatus });
+      setRideData(res.data.data);
+      setStatusIndex(STATUS_MAP[newStatus]);
+      toast.success(`Ride status updated to: ${newStatus}`);
+      if (newStatus === 'completed') {
+        setCurrentRide(null);
+      }
+    } catch (error) {
+      toast.error('Failed to update status');
       console.error(error);
     } finally {
       setLoading(false);
@@ -256,6 +311,27 @@ const RideDetails = () => {
                   <Button variant="success" size="lg" className="w-100 fw-bold shadow-sm" onClick={handlePayment}>
                     Proceed to Payment
                   </Button>
+                ) : user?.role === 'driver' && statusIndex !== -1 ? (
+                  <div className="d-flex flex-column gap-2">
+                    {statusIndex === 1 && (
+                      <Button variant="primary" size="lg" className="w-100 fw-bold" onClick={() => handleUpdateStatus('reached')}>
+                        Reached Pickup
+                      </Button>
+                    )}
+                    {statusIndex === 3 && (
+                      <Button variant="success" size="lg" className="w-100 fw-bold" onClick={() => handleUpdateStatus('started')}>
+                        Start Ride
+                      </Button>
+                    )}
+                    {statusIndex === 4 && (
+                      <Button variant="success" size="lg" className="w-100 fw-bold" onClick={() => handleUpdateStatus('completed')}>
+                        Reached Destination
+                      </Button>
+                    )}
+                    <Button variant="outline-danger" size="md" className="w-100 fw-bold" onClick={handleCancelRide}>
+                      Cancel Ride
+                    </Button>
+                  </div>
                 ) : statusIndex !== -1 ? (
                   <Button variant="outline-danger" size="lg" className="w-100 fw-bold" onClick={handleCancelRide}>
                     Cancel Ride
