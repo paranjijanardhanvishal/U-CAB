@@ -2,21 +2,24 @@ import React, { useState } from 'react';
 import Sidebar from '../components/ui/Sidebar';
 import Topbar from '../components/ui/Topbar';
 import { Outlet, useLocation } from 'react-router-dom';
-import { FaUser, FaCar, FaHistory, FaTachometerAlt } from 'react-icons/fa';
+import { FaUser, FaCar, FaHistory, FaTachometerAlt, FaWallet, FaTag, FaStar, FaBell } from 'react-icons/fa';
 
 // TEMP_DEV_BYPASS: We are hardcoding links for now to test the UI
 const getLinksForRole = (pathname) => {
-  if (pathname.includes('/dashboard/admin')) {
+  if (pathname.includes('/admin')) {
     return [
       { path: '/dashboard/admin', label: 'Dashboard', icon: FaTachometerAlt, exact: true },
-      { path: '/dashboard/admin/users', label: 'Users', icon: FaUser },
-      { path: '/dashboard/admin/rides', label: 'Rides', icon: FaCar },
+      { path: '/admin/users', label: 'Users', icon: FaUser },
+      { path: '/admin/rides', label: 'Rides', icon: FaCar },
     ];
   }
-  if (pathname.includes('/dashboard/driver')) {
+  // Driver links
+  if (pathname.includes('/driver')) {
     return [
       { path: '/dashboard/driver', label: 'Dashboard', icon: FaTachometerAlt, exact: true },
-      { path: '/ride-history', label: 'My Rides', icon: FaHistory },
+      { path: '/driver/trips', label: 'Trip History', icon: FaHistory },
+      { path: '/driver/earnings', label: 'Earnings', icon: FaWallet },
+      { path: '/driver/vehicle', label: 'Vehicle Info', icon: FaCar },
       { path: '/profile', label: 'Profile', icon: FaUser },
     ];
   }
@@ -25,6 +28,10 @@ const getLinksForRole = (pathname) => {
     { path: '/dashboard/user', label: 'Dashboard', icon: FaTachometerAlt, exact: true },
     { path: '/book-ride', label: 'Book a Ride', icon: FaCar },
     { path: '/ride-history', label: 'Ride History', icon: FaHistory },
+    { path: '/wallet', label: 'Wallet', icon: FaWallet },
+    { path: '/coupons', label: 'Coupons', icon: FaTag },
+    { path: '/favorites', label: 'Favorites', icon: FaStar },
+    { path: '/notifications', label: 'Notifications', icon: FaBell },
     { path: '/profile', label: 'Profile', icon: FaUser },
   ];
 };

@@ -32,8 +32,12 @@ const register = async (userData) => {
   }
 };
 
-const login = async (email, password) => {
+const login = async (email, password, role) => {
   const user = await User.findOne({ email });
+
+  if (user && user.role !== role) {
+    throw new Error('Invalid role for this login page');
+  }
 
   if (user && (await user.matchPassword(password))) {
     return {

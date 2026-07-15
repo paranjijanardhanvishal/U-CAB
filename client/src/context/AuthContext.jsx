@@ -8,21 +8,40 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is logged in
-    const checkUserLoggedIn = async () => {
+    const checkUserLoggedIn = () => {
       const storedUserInfo = localStorage.getItem('userInfo');
       if (storedUserInfo) {
-        const userInfo = JSON.parse(storedUserInfo);
-        setUser(userInfo);
+        try {
+          const userInfo = JSON.parse(storedUserInfo);
+          // Simple expiry check if there's a token with an expiration (assuming JWT decode could be done here, or rely on interceptor)
+          if (userInfo && userInfo.token) {
+            setUser(userInfo);
+          } else {
+            localStorage.removeItem('userInfo');
+          }
+        } catch (e) {
+          localStorage.removeItem('userInfo');
+        }
       }
       setLoading(false);
     };
 
     checkUserLoggedIn();
+
+    // Listen for global auth expiration events (from API interceptor)
+    const handleAuthExpired = () => {
+      setUser(null);
+      localStorage.removeItem('userInfo');
+    };
+    window.addEventListener('auth-expired', handleAuthExpired);
+
+    return () => {
+      window.removeEventListener('auth-expired', handleAuthExpired);
+    };
   }, []);
 
-  const login = async (email, password) => {
-    const response = await api.post('/auth/login', { email, password });
+  const login = async (email, password, role) => {
+    const response = await api.post('/auth/login', { email, password, role });
     const userData = response.data.data || response.data;
     setUser(userData);
     localStorage.setItem('userInfo', JSON.stringify(userData));
@@ -40,6 +59,8 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     localStorage.removeItem('userInfo');
+    sessionStorage.clear(); // Clear any other possible session data
+    // Socket disconnection is handled by SocketContext listening to `user` state changing to null
   };
 
   return (

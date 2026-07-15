@@ -20,8 +20,24 @@ import RideHistory from './pages/RideHistory';
 import RideDetails from './pages/RideDetails';
 import Payment from './pages/Payment';
 
+// New User Pages
+import Wallet from './pages/Wallet';
+import Coupons from './pages/Coupons';
+import Favorites from './pages/Favorites';
+import Notifications from './pages/Notifications';
+
+// Driver Pages
+import DriverTrips from './pages/DriverTrips';
+import DriverEarnings from './pages/DriverEarnings';
+import DriverVehicle from './pages/DriverVehicle';
+
+// Admin Pages
+import AdminUsers from './pages/AdminUsers';
+import AdminDrivers from './pages/AdminDrivers';
+import AdminRides from './pages/AdminRides';
+
+import ChooseRole from './pages/ChooseRole';
 import ProtectedRoute from './components/ProtectedRoute';
-import DevLinks from './pages/DevLinks'; // TEMP_DEV_BYPASS
 
 function App() {
   return (
@@ -29,13 +45,16 @@ function App() {
       {/* Public Layout */}
       <Route path="/" element={<MainLayout />}>
         <Route index element={<Home />} />
-        <Route path="login" element={<Login />} />
-        <Route path="register" element={<Register />} />
+        <Route path="choose-role" element={<ChooseRole />} />
+        <Route path="login/:role" element={<Login />} />
+        <Route path="register/:role" element={<Register />} />
+        
+        {/* Redirect old login/register to choose-role */}
+        <Route path="login" element={<ChooseRole />} />
+        <Route path="register" element={<ChooseRole />} />
+        
         <Route path="about" element={<About />} />
         <Route path="contact" element={<Contact />} />
-        
-        {/* TEMP_DEV_BYPASS */}
-        <Route path="dev" element={<DevLinks />} />
 
         {/* Standalone pages inside MainLayout (Not dashboard wrapped) */}
         <Route path="book-ride" element={<ProtectedRoute allowedRoles={['user']}><BookRide /></ProtectedRoute>} />
@@ -50,8 +69,6 @@ function App() {
       <Route path="/dashboard" element={<DashboardLayout />}>
         {/* User */}
         <Route path="user" element={<ProtectedRoute allowedRoles={['user']}><UserDashboard /></ProtectedRoute>} />
-        <Route path="../ride-history" element={<ProtectedRoute allowedRoles={['user', 'driver']}><RideHistory /></ProtectedRoute>} />
-        <Route path="../profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         
         {/* Driver */}
         <Route path="driver" element={<ProtectedRoute allowedRoles={['driver']}><DriverDashboard /></ProtectedRoute>} />
@@ -60,10 +77,24 @@ function App() {
         <Route path="admin" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
       </Route>
       
-      {/* Since we want ride-history and profile to show in the DashboardLayout, let's remap them properly */}
+      {/* Since we want these to show in the DashboardLayout, let's remap them properly */}
       <Route element={<DashboardLayout />}>
-        <Route path="/ride-history" element={<ProtectedRoute allowedRoles={['user', 'driver']}><RideHistory /></ProtectedRoute>} />
+        <Route path="/ride-history" element={<ProtectedRoute allowedRoles={['user']}><RideHistory /></ProtectedRoute>} />
+        <Route path="/wallet" element={<ProtectedRoute allowedRoles={['user']}><Wallet /></ProtectedRoute>} />
+        <Route path="/coupons" element={<ProtectedRoute allowedRoles={['user']}><Coupons /></ProtectedRoute>} />
+        <Route path="/favorites" element={<ProtectedRoute allowedRoles={['user']}><Favorites /></ProtectedRoute>} />
+        <Route path="/notifications" element={<ProtectedRoute allowedRoles={['user']}><Notifications /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        
+        {/* Driver extra routes */}
+        <Route path="/driver/trips" element={<ProtectedRoute allowedRoles={['driver']}><DriverTrips /></ProtectedRoute>} />
+        <Route path="/driver/earnings" element={<ProtectedRoute allowedRoles={['driver']}><DriverEarnings /></ProtectedRoute>} />
+        <Route path="/driver/vehicle" element={<ProtectedRoute allowedRoles={['driver']}><DriverVehicle /></ProtectedRoute>} />
+
+        {/* Admin extra routes */}
+        <Route path="/admin/users" element={<ProtectedRoute allowedRoles={['admin']}><AdminUsers /></ProtectedRoute>} />
+        <Route path="/admin/drivers" element={<ProtectedRoute allowedRoles={['admin']}><AdminDrivers /></ProtectedRoute>} />
+        <Route path="/admin/rides" element={<ProtectedRoute allowedRoles={['admin']}><AdminRides /></ProtectedRoute>} />
       </Route>
 
     </Routes>

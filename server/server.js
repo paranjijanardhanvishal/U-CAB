@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import http from 'http';
 import connectDB from './config/db.js';
 import healthRoutes from './routes/healthRoutes.js';
 import authRoutes from './routes/authRoutes.js';
@@ -13,6 +14,7 @@ import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import compression from 'compression';
+import { initSocket } from './config/socket.js';
 
 dotenv.config();
 
@@ -20,6 +22,10 @@ dotenv.config();
 await connectDB();
 
 const app = express();
+const server = http.createServer(app);
+
+// Initialize Socket.io
+initSocket(server);
 
 // Middleware
 app.use(helmet());
@@ -46,6 +52,6 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
 });

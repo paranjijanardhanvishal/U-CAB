@@ -8,7 +8,10 @@ export const RIDE_STATUS = {
   REQUESTED: 'requested',
   ACCEPTED: 'accepted',
   ARRIVING: 'arriving',
+  REACHED: 'reached',
   STARTED: 'started',
+  HALFWAY: 'halfway',
+  APPROACHING: 'approaching',
   COMPLETED: 'completed',
   CANCELLED: 'cancelled',
 };

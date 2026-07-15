@@ -1,10 +1,9 @@
-import { useLocation } from 'react-router-dom';
+import { useContext } from 'react';
+import { useLocation, Navigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
+import Loader from './Loader';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
-  // TEMP_DEV_BYPASS: Authentication is temporarily bypassed for UI development.
-  // We simply return the children directly without checking user context or roles.
-  
-  /* 
   const { user, loading } = useContext(AuthContext);
   const location = useLocation();
 
@@ -17,13 +16,15 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   }
 
   if (!user) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    // If not logged in, go to choose-role or login depending on intended role
+    // For simplicity, just send them to choose-role if no user
+    return <Navigate to="/choose-role" state={{ from: location }} replace />;
   }
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
+    // Prevent cross-role access (e.g. user trying to access /driver)
     return <Navigate to={`/dashboard/${user.role}`} replace />;
   }
-  */
 
   return children;
 };

@@ -31,6 +31,10 @@ api.interceptors.response.use(
   },
   (error) => {
     // Handle global errors here
+    if (error.response && error.response.status === 401) {
+      // Dispatch custom event to trigger logout in AuthContext
+      window.dispatchEvent(new Event('auth-expired'));
+    }
     return Promise.reject(error);
   }
 );

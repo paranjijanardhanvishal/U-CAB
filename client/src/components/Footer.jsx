@@ -3,10 +3,10 @@ import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from 'react-icons/fa';
 
 const Footer = () => {
   return (
-    <footer className="bg-dark text-light py-5 mt-auto">
+    <footer className="bg-dark text-light py-4 mt-auto">
       <div className="container">
         <div className="row gy-4">
-          <div className="col-lg-4 col-md-6">
+          <div className="col-lg-4 col-md-6 pe-lg-5">
             <h4 className="fw-bold mb-3 text-white">Ucab</h4>
             <p className="text-muted">
               The premier cab booking platform. Fast, safe, and reliable rides at your fingertips.
@@ -40,9 +40,9 @@ const Footer = () => {
           <div className="col-lg-4 col-md-6">
             <h5 className="fw-bold mb-3 text-white">Subscribe</h5>
             <p className="text-muted">Get updates on our latest features and offers.</p>
-            <div className="d-flex">
-              <input type="email" className="form-control me-2 bg-secondary border-0 text-white placeholder-light" placeholder="Email address" />
-              <button className="btn btn-primary fw-medium px-4">Subscribe</button>
+            <div className="d-flex flex-column flex-sm-row gap-2">
+              <input type="email" className="form-control bg-secondary bg-opacity-25 border-0 text-white placeholder-light" placeholder="Email address" />
+              <button className="btn btn-primary fw-medium px-4 text-nowrap">Subscribe</button>
             </div>
           </div>
         </div>

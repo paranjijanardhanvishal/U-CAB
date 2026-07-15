@@ -6,6 +6,7 @@ import Ride from './models/Ride.js';
 import Payment from './models/Payment.js';
 import connectDB from './config/db.js';
 import { ROLES } from './utils/constants.js';
+import bcrypt from 'bcryptjs';
 
 dotenv.config();
 
@@ -18,26 +19,28 @@ const importData = async () => {
     await Ride.deleteMany();
     await Payment.deleteMany();
 
+    const salt = await bcrypt.genSalt(10);
+    
     const createdUsers = await User.insertMany([
       {
         fullName: 'Admin User',
-        email: 'admin@example.com',
+        email: 'admin@admin.com',
         phone: '1111111111',
-        password: 'password123',
+        password: await bcrypt.hash('admin123', salt),
         role: ROLES.ADMIN,
       },
       {
         fullName: 'John Driver',
-        email: 'driver@example.com',
+        email: 'driver@driver.com',
         phone: '2222222222',
-        password: 'password123',
+        password: await bcrypt.hash('driver123', salt),
         role: ROLES.DRIVER,
       },
       {
         fullName: 'Jane Rider',
         email: 'user@example.com',
         phone: '3333333333',
-        password: 'password123',
+        password: await bcrypt.hash('password123', salt),
         role: ROLES.USER,
       },
     ]);

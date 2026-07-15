@@ -29,16 +29,16 @@ const registerUser = async (req, res, next) => {
 // @access  Public
 const loginUser = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
-    if (!email || !password) {
+    const { email, password, role } = req.body;
+    if (!email || !password || !role) {
       res.status(400);
-      throw new Error('Please provide email and password');
+      throw new Error('Please provide email, password, and role');
     }
 
-    const userData = await authService.login(email, password);
+    const userData = await authService.login(email, password, role);
     return sendResponse(res, 200, true, 'Login successful', userData);
   } catch (error) {
-    if (error.message === 'Invalid email or password') {
+    if (error.message === 'Invalid email or password' || error.message === 'Invalid role for this login page') {
       res.status(401);
     }
     next(error);
